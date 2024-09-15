@@ -35,7 +35,7 @@ from mutagen.wave import WAVE
 
 # gather all the 'FGYZ.mp3' files into one folder: 'tempunsorted'
 
-forbiddenregex = re.compile('["*/:<>\?\\\|\+,.;=\[\]]') #based on https://en.wikipedia.org/wiki/Filename#Comparison_of_filename_limitations
+forbiddenregex = re.compile('["*/:<>\\?\\|\\+,\\.;=\\[\\]]') #based on https://en.wikipedia.org/wiki/Filename#Comparison_of_filename_limitations
 
 def collectmus():
         print("\n collecting music files...?")
@@ -44,8 +44,8 @@ def collectmus():
         x = [os.path.join(r,file) for r,d,f in os.walk(".") for file in f]
         for i in x:
                 head, tail = os.path.split(i)
-                if re.match(r'^[A-Z]{4}',tail):
-                        os.rename(i,os.path.join('tempunsorted',i[2:5] + tail))
+                if head!=os.path.curdir:
+                        shutil.copy(i,os.path.join('tempunsorted',i[2:5] + tail))
         print("\nMusic files moved to folder 'tempunsorted'")
 
 
@@ -64,7 +64,7 @@ def getsongobject(file):
 def titlechange():
         thelist = os.listdir()
         errorlist = []
-        for i in [s for s in thelist if re.match("^F[0-9]{2}[A-Z]{4}\.", s)]:
+        for i in [s for s in thelist]:
                 try:
                         song = getsongobject(i)
                         title = song['title']
@@ -98,11 +98,11 @@ def sortbyartist():
                         if 'album' in song.keys():
                                 album = re.sub(forbiddenregex, '', ''.join(song['album'])).strip()
 
-                        artistalbum = os.path.join(artist, album)
+                        artistalbum = os.path.join(artist)
                         if not os.path.isdir(artistalbum):
                                 os.makedirs(artistalbum)
                         shutil.move(i, artistalbum)
-
+                        #print("done for ",song)
                 except: errorlist.append(i)
 
         if len(errorlist) > 0:
